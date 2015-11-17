@@ -1,0 +1,25 @@
+- hosts: windows
+  vars_prompt:
+    - name: "administrator_password"
+      prompt: "Enter Local Windows Administrator Password"
+      private: yes
+    - name: "windows_restart"
+      prompt: "Do you want Windows to restart automatically after installing updates? y/n"
+      default: "y"
+      private: no 
+  vars:
+    Reboot: ' ' 
+    administrator_login: 'Administrator'
+  tasks:
+    - set_fact:
+        Reboot: '-IgnoreReboot'
+      when: windows_restart == 'n'
+    - set_fact:
+        Reboot: '-AutoReboot'
+      when: windows_restart == 'y'
+    # this fact is for logging in to domain controllers with DOMAIN:
+    - set_fact:
+        administrator_login: '***YOUR_DOMAIN***\Administrator'
+      when: "'-dc' in '{{ inventory_hostname }}'"
+    - debug: msg="Reboot Behavior set to {{ Reboot }} "
+    - raw: '"C:\Program Files (x86)\Ansible\PsExec.exe" -u {{ administrator_login }} -p {{ administrator_password }} -accepteula C:\Windows\System32\WindowsPowershell\v1.0\powershell.exe get-wuinstallslack -WindowsUpdate -AcceptAll {{ Reboot }} -slackToken ***YOUR_SLACK_TOKEN*** -slackUsername ***YOUR_SLACK_USER*** -slackChannel ***YOUR_SLACK_CHANNEL***'

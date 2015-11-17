@@ -1,0 +1,13 @@
+- hosts: windows
+  vars_prompt:
+    - name: "administrator_password"
+      prompt: "Enter Local Windows Administrator Password"
+      private: yes 
+  vars:
+    administrator_login: 'Administrator'
+  tasks:
+   # this fact is for logging into domain controllers with domain credentials
+    - set_fact:
+        administrator_login: '***YOUR_DOMAIN***\Administrator'
+      when: "'-dc' in '{{ inventory_hostname }}'"
+    - raw: '"C:\Program Files (x86)\Ansible\PsExec.exe" -u {{ administrator_login }} -p {{ administrator_password }} -accepteula C:\Windows\System32\WindowsPowershell\v1.0\powershell.exe Restart-Computer -Force'
