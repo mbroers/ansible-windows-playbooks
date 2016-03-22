@@ -1,0 +1,12 @@
+- hosts: hyperv-hosts
+  vars_prompt:
+    - name: "administrator_password"
+      prompt: "Enter Local Windows Administrator Password"
+      private: yes
+  vars:
+    administrator_login: 'Administrator' 
+  tasks:
+    - set_fact:
+        administrator_login: '***YOUR_DOMAIN***\Administrator'
+      when: "'-dc' in '{{ inventory_hostname }}'"
+    - raw: '"C:\Program Files (x86)\Ansible\PsExec.exe" -u {{ administrator_login }} -p {{ administrator_password }} -accepteula powershell resume-vm_slack -slackToken ***YOUR_SLACK_TOKEN*** -slackUsername ***YOUR_SLACK_USER*** -slackChannel ***YOUR_SLACK_CHANNEL***'

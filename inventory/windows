@@ -20,3 +20,8 @@ domain-controller-1
 [group3]
 domain-controller-2
 fileserver-2
+
+[hyperv-hosts]
+vmhost-22
+vmhost-03
+vmhost-17
